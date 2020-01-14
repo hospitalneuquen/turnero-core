@@ -74,9 +74,7 @@ export class Server {
         this.app.use(bodyParser.urlencoded({ extended: true }));
 
         //add static paths
-        if (production) {
-            this.app.use(express.static(path.join(__dirname, "public")));
-        }
+
         // this.app.use(express.static(path.join(__dirname, "bower_components")));
 
         //mount override
@@ -138,5 +136,12 @@ export class Server {
         }
         //use router middleware
         this.app.use(router);
+
+        if (production) {
+            this.app.use('/', express.static(path.join(__dirname, "public")))
+            this.app.get('/*', (req, res) => {
+                return res.sendFile(path.join(__dirname, "public/index.html"));
+            });
+        }
     }
 }

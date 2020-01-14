@@ -1,0 +1,16 @@
+version: '2'
+services:
+  turnero_app:  
+    image: turnero-app
+    container_name: turnero_turnero
+    ports:
+      - "3000:3000" 
+    environment:
+      NODE_ENV: production
+      DB_HOST: mongodb://turnero_mongo:27017/turnero
+      PORT: 3000
+  turnero_mongo:  
+   image: mongo:4.0
+   container_name: turnero_mongo
+   ports:
+     - "27017:27017" 
