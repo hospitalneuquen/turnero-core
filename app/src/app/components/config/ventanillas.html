@@ -1,0 +1,68 @@
+<ng-container *ngIf="ventanillas">
+
+  <div class="container-fluid">
+
+    <div class="row">
+      <div class="col-6">
+        <h2>Configuración de Ventanillas</h2>
+      </div>
+      <div class="col-6">
+      </div>
+    </div>
+
+    <div class="row">
+
+      <div class="col-8">
+        <ng-container *ngIf="ventanillas.length">
+          <table class="table table-striped">
+            <thead>
+              <tr class="text-center">
+                <td><strong>Ventanilla</strong></td>
+                <td><strong>Disponible</strong></td>
+                <td><strong>Prioritaria</strong></td>
+                <td><strong>Pausada</strong></td>
+                <td><strong>Eliminar</strong></td>
+              </tr>
+            </thead>
+            <ng-container *ngFor="let ventanilla of ventanillas">
+              <tbody>
+                <tr class="text-center" [ngClass]="{'bg-primary': ventanilla._id === ventanillaSeleccionada._id}">
+                  <td (click)="seleccionarVentanilla(ventanilla)">{{ ventanilla.numero }}</td>
+                  <td (click)="seleccionarVentanilla(ventanilla)"><input type="checkbox" name="disponible"
+                           [(ngModel)]="ventanilla.disponible"
+                           (click)="actualizarVentanilla(ventanilla, 'disponible', !ventanilla.disponible)"></td>
+                  <td (click)="seleccionarVentanilla(ventanilla)"><input type="checkbox" name="prioritaria"
+                           [(ngModel)]="ventanilla.prioritaria"
+                           (click)="actualizarVentanilla(ventanilla, 'prioritaria', !ventanilla.prioritaria)"></td>
+                  <td (click)="seleccionarVentanilla(ventanilla)"><input type="checkbox" name="pausa"
+                           [(ngModel)]="ventanilla.pausa"
+                           (click)="actualizarVentanilla(ventanilla, 'pausa', !ventanilla.pausa)"></td>
+                  <td><button class="hover btn btn-sm" (click)="eliminarVentanilla(ventanilla)"><i
+                         class="mdi mdi-delete"></i></button></td>
+                </tr>
+              </tbody>
+            </ng-container>
+          </table>
+        </ng-container>
+
+        <ng-container *ngIf="!ventanillas.length">
+          <h4 *ngIf="!ventanillas.length">No hay ventanillas configuradas. <span class="text-danger"
+                  *ngIf="servidorCaido">(Servidor caído)</span></h4>
+        </ng-container>
+        <button class="btn btn-sm btn-primary" (click)="agregarVentanilla()" [disabled]="servidorCaido">Agregar
+          Ventanilla</button>
+
+
+      </div>
+
+      <div class="col-4">
+        <hpn-panel-ventanilla *ngIf="showEditarVentanillaPanel" [editarVentanilla]="ventanillaSeleccionada"
+                              [ventanillasCount]="ventanillas.length" (closeEmit)="onCloseEmit($event)"
+                              (editEmit)="onEditEmit($event)"></hpn-panel-ventanilla>
+        <!--<hpn-panel-ventanilla *ngIf="showEditarVentanillaPanel" (onCloseEmit)="onCloseEmit($event)" (onEditEmit)="onEditEmit($event)"></hpn-panel-ventanilla>-->
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

@@ -1,0 +1,617 @@
+/* You can add global styles to this file, and also import other style files */
+
+$mdi-font-path: '~@mdi/font/fonts/';
+@import '~@mdi/font/scss/materialdesignicons';
+
+/**
+A revisar!!!!!
+*/
+
+// @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic);
+
+/* TURNEROS */
+
+
+/*  Estilos globales */
+
+
+/* Rules for sizing the icon. */
+
+.material-icons.md-18 {
+    font-size: 18px;
+}
+
+.material-icons.md-24 {
+    font-size: 24px;
+}
+
+.material-icons.md-36 {
+    font-size: 36px;
+}
+
+.material-icons.md-48 {
+    font-size: 48px;
+}
+
+body {
+    background-color: white;
+    font-family: 'Source Sans Pro';
+}
+
+.border {
+    border: solid 1px black;
+}
+
+h3 {
+    line-height: 0.75rem;
+}
+
+@media screen and (max-width: 1024px) {
+    h3 {
+        font-size: 1.25rem;
+        line-height: 0.75rem;
+    }
+}
+
+
+/* Variables cromáticas sass */
+
+
+/* Cromaticidad (pasteles)  */
+
+
+/* medidas */
+
+div.amarillo div.borde {
+    border: solid 8px #FFFECF;
+}
+
+div.amarillo div.fondo {
+    background: #FFFECF;
+}
+
+div.amarillo div.texto {
+    color: #FFFECF;
+}
+
+div.rosado div.borde {
+    border: solid 8px #FBDED6;
+}
+
+div.rosado div.fondo {
+    background: #FBDED6;
+}
+
+div.rosado div.texto {
+    color: #FBDED6;
+}
+
+div.celeste div.borde {
+    border: solid 8px #B9E5EF;
+}
+
+div.celeste div.fondo {
+    background: #B9E5EF;
+}
+
+div.celeste div.texto {
+    color: #B9E5EF;
+}
+
+div.verde div.borde {
+    border: solid 8px #BEEDCC;
+}
+
+div.verde div.fondo {
+    background: #BEEDCC;
+}
+
+div.verde div.texto {
+    color: #BEEDCC;
+}
+
+div.violeta div.borde {
+    border: solid 8px #B5BFF4;
+}
+
+div.violeta div.fondo {
+    background: #B5BFF4;
+}
+
+div.violeta div.texto {
+    color: #B5BFF4;
+}
+
+
+/* Estilos dashboard turnero*/
+
+
+/* Menú */
+
+.titulo-ventanilla {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 2rem;
+}
+
+
+/* layout */
+
+.content {
+    padding: 20px;
+    height: 100%;
+}
+
+.inactivo {
+    -webkit-filter: grayscale(100%);
+    /* Safari 6.0 - 9.0 */
+    filter: grayscale(100%);
+}
+
+.no-gutters {
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+.no-gutters>.col,
+.no-gutters>[class*="col-"] {
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+.friso {
+    background-color: black;
+    color: white;
+    height: 100px;
+    padding: 20px;
+    width: 100%;
+}
+
+.friso-lateral {
+    background-color: black;
+    color: white;
+    height: 50px;
+    padding: 10px;
+    width: 100%;
+}
+
+.box {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    color: #444;
+    display: block;
+    min-height: calc(100vh - 100px);
+    position: relative;
+    width: 100%;
+}
+
+.box-lateral {
+    background-color: white;
+    border: solid 1px black;
+    height: 100vh;
+}
+
+.box-lateral.expandido {
+    padding: 20px;
+}
+
+.box-turno {
+    background-color: white;
+    border: solid 8px grey;
+    height: auto;
+    transition: all 1s ease;
+}
+
+.box-turno:hover {
+    -webkit-filter: grayscale(15%);
+    /* Safari 6.0 - 9.0 */
+    filter: grayscale(15%);
+}
+
+.box-turno:focus {
+    -webkit-filter: grayscale(0%);
+    /* Safari 6.0 - 9.0 */
+    filter: grayscale(0%);
+}
+
+.box-ventanilla {
+    color: grey;
+    font-size: 5rem;
+    font-weight: 300;
+    height: 200px;
+    padding: 30px;
+    text-align: center;
+}
+
+.blink {
+    animation: blink-animation 1s steps(5, start) infinite;
+    -webkit-animation: blink-animation 1s steps(5, start) infinite;
+}
+
+.blink-5 {
+    animation: blink-animation 1s steps(5, start) 5;
+    -webkit-animation: blink-animation 1s steps(5, start) 5;
+}
+
+@keyframes blink-animation {
+    to {
+        visibility: hidden;
+    }
+}
+
+@-webkit-keyframes blink-animation {
+    to {
+        visibility: hidden;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .box-ventanilla {
+        font-size: 2.5rem;
+        height: 150px;
+        padding: 30px;
+    }
+}
+
+
+/* Estilo Numeros Monitor */
+
+.cabezal {
+    height: 120px;
+    width: 100%;
+}
+
+.texto-cabezal {
+    color: black;
+    font-size: 1.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    vertical-align: middle;
+    padding-left: 10%;
+}
+
+.texto-cabezal span {
+    text-align: center;
+}
+
+
+/*span.numero-cabezal {
+  background-color: black;
+  color: white;
+  font-size: 4.25rem;
+  width: 100px;
+  position: absolute;
+  width: 100px;
+  right: 0;
+}*/
+
+.numeros-container {
+    display: flex;
+    justify-content: center;
+}
+
+.numero-container {
+    padding: 0 5px 0 10px;
+}
+
+span.numero-cabezal {
+    background-color: black;
+    color: white;
+    font-size: 1.75rem;
+    position: absolute;
+    width: 25%;
+    right: 0;
+}
+
+.cuerpo {
+    background-color: white;
+    text-transform: uppercase;
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+    width: 100%;
+    /* padding-top: 100px;*/
+    /* height: 600px; */
+    height: 45vh;
+}
+
+.cuerpo>.tipo-turno {
+    color: grey;
+    font-size: 3.2rem;
+    font-weight: 500;
+}
+
+@media screen and (max-width: 1024px) {
+    .cuerpo>.tipo-turno {
+        font-size: 2.5rem;
+    }
+}
+
+.cuerpo>.numero {
+    color: black;
+    font-size: 12rem;
+    line-height: 12rem;
+    font-weight: bold;
+    margin: 0 20px 0 20px;
+    vertical-align: center;
+}
+
+@media screen and (max-width: 1024px) {
+    .cuerpo>.numero {
+        color: black;
+        font-size: 6rem;
+        line-height: 6rem;
+        font-weight: bold;
+        margin: 0 20px 0 20px;
+    }
+}
+
+.cuerpo>.llamado {
+    color: white;
+    display: inline-block;
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+    margin: 80px 0 0;
+    text-align: center;
+    padding: 15px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.cuerpo>.llamado.success {
+    background-color: #8CC63F;
+}
+
+.cuerpo>.llamado.warning {
+    background-color: #ff8d22;
+}
+
+.cuerpo>.llamado.danger {
+    background-color: #dd4b39;
+}
+
+
+/* Estilos dashboard turnos */
+
+.zocalo {
+    background-color: black;
+    bottom: 0px;
+    height: 110px;
+    text-align: center;
+    vertical-align: middle;
+    width: 100%;
+    position: absolute;
+}
+
+.zocalo.lateral {
+    background-color: #a0a0a0;
+    bottom: 0px;
+}
+
+.zocalo-texto {
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 1.5rem;
+    margin-top: 25px;
+}
+
+h2.zocaloNumero {
+    font-size: 6rem;
+    line-height: 6rem;
+    font-weight: bold;
+}
+
+.border-bottom {
+    border-bottom: solid 1px black;
+    line-height: 3rem;
+    margin-bottom: 30px;
+}
+
+.cuadradito {
+    border: solid 1px grey;
+    margin: 0 20px 5px 0;
+    height: 60px;
+    width: 60px;
+}
+
+.cuadradito.amarillo {
+    background-color: #FFFECF;
+}
+
+.cuadradito.verde {
+    background-color: #BEEDCC;
+}
+
+.cuadradito.rosado {
+    background-color: #FBDED6;
+}
+
+.cuadradito.celeste {
+    background-color: #B9E5EF;
+}
+
+.cuadradito.violeta {
+    background-color: #B5BFF4;
+}
+
+.cuadradito:hover {
+    border: solid 2px #00A8E0;
+}
+
+.cuadradito:focus {
+    outline: solid 2px #00A8E0;
+}
+
+
+/* Modificados Bootstrap */
+
+.form-control {
+    margin-bottom: 20px;
+}
+
+
+/* Botones */
+
+.btn {
+    box-shadow: none;
+    border-radius: 0px;
+    font-size: 0.85rem;
+    font-weight: 200;
+    text-transform: uppercase;
+    /*padding: 20px;*/
+}
+
+@media screen and (max-width: 1024px) {
+    .btn {
+        padding: 10px;
+    }
+}
+
+.btn-danger {
+    box-shadow: none;
+    border-radius: 0px;
+    border: 0px;
+    font-weight: 200;
+}
+
+.btn-confirmar {
+    background-color: #8CC63F;
+    bottom: 0px;
+    color: white;
+    font-size: 1.15rem;
+    margin: 50px 20px 0 20px;
+    position: relative;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+.btn-confirmar:hover {
+    background-color: #209245;
+}
+
+.btn-pausar {
+    background-color: #dd4b39;
+    color: white;
+    font-size: 1.15rem;
+    margin: 20px;
+    text-transform: uppercase;
+    width: 30%;
+}
+
+.btn-pausar:hover {
+    background-color: #891620;
+}
+
+.btn-llamar {
+    background-color: #8CC63F;
+    color: white;
+    display: inline-block;
+    font-size: 1.5rem;
+    margin: 80px 0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btn-llamar:hover {
+    background-color: #209245;
+}
+
+@media screen and (max-width: 1024px) {
+    .btn-llamar {
+        font-size: 1rem;
+    }
+}
+
+
+/* Iconos */
+
+.flecha {
+    cursor: hand;
+    -webkit-filter: opacity(15%);
+    /* Safari 6.0 - 9.0 */
+    filter: opacity(15%);
+    position: absolute;
+    transition: all 1s ease;
+    top: 45%;
+}
+
+.flecha.back {
+    left: 15%;
+    -ms-transform: rotate(180deg);
+    /* IE 9 */
+    -webkit-transform: rotate(180deg);
+    /* Chrome, Safari, Opera */
+    transform: rotate(180deg);
+}
+
+.flecha.next {
+    right: 15%;
+}
+
+.flecha:hover {
+    -webkit-filter: opacity(100%);
+    /* Safari 6.0 - 9.0 */
+    filter: opacity(100%);
+}
+
+@media screen and (max-width: 1024px) {
+    .flecha {
+        top: 35%;
+    }
+}
+
+.campanita {
+    background-color: #209245;
+    padding: 5px;
+}
+
+
+/* Links*/
+
+a {
+    color: #111111;
+}
+
+a:hover,
+a:active,
+a:focus {
+    outline: 5px;
+    text-decoration: none;
+    color: #00A8E0;
+}
+
+
+/* Badges */
+
+.badge {
+    background: transparent;
+    border: 1.5px solid;
+    border-radius: 0px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0px 10px 10px 0px;
+    width: 100%;
+}
+
+.badge.badge-danger {
+    border-color: #dd4b39;
+    color: #dd4b39;
+}
+
+.badge.badge-success {
+    border-color: #8CC63F;
+    color: #8CC63F;
+}
+
+.badge.badge-warning {
+    border-color: #ff8d22;
+    color: #ff8d22;
+}
+
+.badge.badge-info {
+    border-color: #00A8E0;
+    color: #00A8E0;
+}
+

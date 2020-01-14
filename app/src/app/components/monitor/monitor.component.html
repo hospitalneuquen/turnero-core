@@ -1,0 +1,48 @@
+<div class="content">
+    <div class="container-fluid">
+        <div class="numeros-container" *ngIf="ventanillas?.length">
+            <ng-container *ngFor="let ventanilla of ventanillas">
+                <ng-container *ngIf="ventanilla?.turno?._id">
+                    <div class="numero-container" [ngClass]="ventanilla?.turno?.color">
+                        <div class="box fondo nuevo-turno" [ngClass]="{'blink-5': ventanillaBlink?.ventanilla === ventanilla._id}">
+
+                            <div class="cabezal">
+                                <div class="texto-cabezal">ventanilla
+                                    <span class="numero-cabezal">{{ventanilla.numero}}</span>
+                                </div>
+                                <div class="cuerpo">
+                                    <div class="tipo-turno">
+                                        <b *ngIf="ventanilla.turno.tipo === 'prioritario'">prioridad</b>
+                                        <b *ngIf="ventanilla.turno.tipo === 'no-prioritario'">común/especial</b>
+                                    </div>
+                                    <div class="numero">
+                                        {{ventanilla.turno.numeros.letra}}
+                                        <span *ngIf="ventanillaBlink?.numeroAnterior && ventanillaBlink?.ventanilla === ventanilla._id">{{ventanillaBlink.numeroAnterior}}</span>
+                                        <span *ngIf="!ventanillaBlink?.numeroAnterior || ventanillaBlink.numeroAnterior >= ventanilla.turno.numeros.numero">{{ventanilla.turno.numeros.numero}}</span>
+                                    </div>
+                                    <div class="llamado success"><i class="mdi mdi-bell-ring mdi-36px"></i> Llamado {{ventanilla.turno.numeros.llamado}}</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+        </div>
+        <div class="row" *ngIf="!ventanillas">
+            <div class="col">
+                <h3>Volvemos en unos instantes... <i class="mdi mdi-36px mdi-tag-faces"></i></h3>
+            </div>
+        </div>
+        <!--<div class="row" *ngIf="!ventanillas[0]?.turno">
+            <div class="col">
+                <h3>No hay turnos configurados... por favor espere.</h3>
+            </div>
+        </div>-->
+    </div>
+</div>
+<audio *ngIf="audio && ventanillas" autoplay>
+    <source src="./assets/audio/ding-dong.mp3">
+    <source src="./assets/audio/ding-dong.ogg">
+    <source src="./assets/audio/ding-dong.m4a">
+</audio>

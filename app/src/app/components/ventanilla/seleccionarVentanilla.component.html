@@ -1,0 +1,45 @@
+<style>
+  .ventanilla {
+    border: 1px solid #f9f9f9;
+  }
+
+  .ventanilla .header {
+    height: 50px;
+    border-bottom: 1px solid black;
+    padding: 5px;
+  }
+
+  .ventanilla .numero {
+    font-size: 40px;
+    height: 100px;
+    line-height: 40px;
+    padding: 20px 0;
+  }
+
+</style>
+<ng-container *ngIf="ventanillas">
+  <div class="container">
+    <div class="row">
+      <ng-container *ngFor="let ventanilla of ventanillas">
+        <div class="col">
+          <div class="ventanilla">
+
+            <div class="header">
+              <div class="text-center">
+                <b *ngIf="ventanilla.prioritaria">Prioritaria</b>
+                <b *ngIf="!ventanilla.prioritaria">No Prioritaria</b>
+              </div>
+
+            </div>
+
+            <div class="text-center numero">
+              Ventanilla <b>{{ventanilla.numero}}</b>
+            </div>
+
+            <button type="button" class="btn btn-primary form-control" (click)="seleccionar(ventanilla)" [disabled]="!ventanilla.disponible">Seleccionar</button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</ng-container>

@@ -1,0 +1,60 @@
+<ng-container *ngIf="turnero">
+    <div [ngClass]="turnero.color">
+
+        <div class="box-turno borde inactivo">
+
+            <div class="cabezal fondo text-center">
+                <h4>Ventanilla {{ventanilla.numero}}</h4>
+
+                <h3 *ngIf="disponibles <= 10">Atención:</h3>
+                <span *ngIf="disponibles > 1 && disponibles <= 10">últimos {{disponibles}} turnos disponibles</span>
+                <span *ngIf="disponibles === 1">ÚLTIMO turno disponible</span>
+                <div *ngIf="disponibles === 0">
+                    <h4 class="tipo-turno">No quedan turnos disponibles, por favor cargue un nuevo turnero
+                        <b *ngIf="turnero.tipo === 'prioritario'">prioritario</b>
+                        <b *ngIf="turnero.tipo === 'no-prioritario'">no prioritario</b>
+                    </h4>
+
+                    <div class="text-center">
+                        <a [routerLink]="['/config/turnos']" class="btn btn-primary">Cargar turnos</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cuerpo container-fluid">
+                <div class="tipo-turno">
+                    <span *ngIf="turnero.tipo === 'prioritario'">prioritario</span>
+                    <span *ngIf="turnero.tipo === 'no-prioritario'">no prioritario</span>
+                </div>
+
+                <div class="d-inline numero" *ngIf="turno?.numeros">
+                    {{turno.numeros.letra}} {{turno.numeros.numero}}
+                </div>
+
+            </div>
+            <div class="container-fluid">
+                <div class="row">
+                    <div *ngIf="turno?.numeros" class="col-4 text-center">
+                        <i class="mdi mdi-arrow-left-bold-box-outline mdi-48px align-middle"></i>
+                        <button class="btn btn-primary" (click)="rellamar(turno, 'anterior')">
+                            <span class="align-middle">Rellamar anterior ({{turno.numeros.llamado}})</span>
+                        </button>aa
+                    </div>
+                    <div *ngIf="turno?.numeros" class="col-4 text-center">
+                        <i class="mdi mdi-bell-ring mdi-48px align-middle"></i>
+                        <button class="btn btn-primary" (click)="rellamar(turno, 'actual')">
+                            <span class="align-middle">Rellamar actual ({{turno.numeros.llamado}})</span>
+                        </button>
+                    </div>
+                    <div *ngIf="disponibles" class="col-4 text-center">
+                        <i class="mdi mdi-arrow-right-bold-box-outline mdi-48px align-middle"></i>
+                        <button class="btn btn-primary" (click)="siguiente()">
+                            <span *ngIf="turno?.numeros" class="align-middle">Llamar siguiente</span>
+                            <span *ngIf="!turno?.numeros">Llamar primer turno</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>

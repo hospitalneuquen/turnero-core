@@ -1,0 +1,54 @@
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h5 *ngIf="ventanillaActual">Nueva ventanilla</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <form class="form">
+                <div class="row">
+                    <div class="col-4">
+                        <label for="numero">Número
+                            <input [(ngModel)]="ventanillaActual.numero" name="numero" type="number"
+                                   class="form-control">
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="prioritaria">Prioritaria
+                            <input [(ngModel)]="ventanillaActual.prioritaria" name="prioritaria" type="checkbox"
+                                   class="form-control">
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="disponible">Disponible
+                            <input [(ngModel)]="ventanillaActual.disponible" name="disponible" type="checkbox"
+                                   class="form-control">
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="disponible">Pausada
+                            <input [(ngModel)]="ventanillaActual.pausa" name="pausa" type="checkbox"
+                                   class="form-control">
+                        </label>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-primary" (click)="guardarVentanilla()">Guardar</button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-default" (click)="cancelar()">Cancelar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
