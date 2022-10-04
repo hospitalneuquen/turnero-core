@@ -15,7 +15,7 @@ services:
     image: nginx:1.19-alpine
     container_name: turnero_reverse 
     volumes:
-      - ./cicd/nginx-reverse.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx-reverse.conf:/etc/nginx/nginx.conf
     ports:
       - "80:80"
   turnero_mongo:  
