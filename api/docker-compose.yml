@@ -1,8 +1,0 @@
-version: '2'
-
-services:
- turnero_mongo:  
-  image: mongo:4.0
-  container_name: turnero_mongo
-  ports:
-    - "27017:27017" 
