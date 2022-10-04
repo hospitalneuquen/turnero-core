@@ -1,7 +1,5 @@
-import * as debug from 'debug';
 //module dependencies
 const server = require("./server");
-const logger = debug("express:server");
 const http = require("http");
 
 //create http server
@@ -75,5 +73,4 @@ function onListening() {
     const bind = typeof addr === "string" ?
         "pipe " + addr :
         "port " + addr.port;
-    logger("Listening on " + bind);
 }
