@@ -4,9 +4,7 @@ RUN apk add --no-cache --virtual .build-deps make gcc g++ python
 COPY package.json package-lock.json tsconfig.json ./ 
 RUN npm ci
 COPY src/ . 
-RUN ls /app
 RUN npm run tsc
-RUN ls /app
 
 FROM node:10-alpine 
 RUN apk add --no-cache --virtual .build-deps gcc g++ make python bash
