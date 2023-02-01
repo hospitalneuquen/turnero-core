@@ -16,7 +16,7 @@
     "errorhandler": "^1.4.3",
     "express": "^4.14.0",
     "method-override": "^2.3.8",
-    "mongoose": "^5.8.7",
+    "mongoose": "^5.13.15",
     "require-dir": "^0.3.1"
   },
   "devDependencies": {
