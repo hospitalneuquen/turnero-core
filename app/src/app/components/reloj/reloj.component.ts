@@ -1,23 +1,30 @@
 import { Component, OnInit } from '@angular/core';
-import { interval } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs/Rx';
 
+import { ExtraService } from './../../services/extra-service';
 
 @Component({
-    selector: 'hpn-reloj',
-    templateUrl: './reloj.component.html',
-    styleUrls: ['./reloj.component.css']
+  selector: 'app-reloj',
+  templateUrl: './reloj.component.html',
+  styleUrls: ['./reloj.component.css']
 })
 export class RelojComponent implements OnInit {
 
-    public clock;
+  public clock;
 
-    constructor() { }
+  constructor(private extraService: ExtraService) { }
 
-    ngOnInit() {
-        this.clock = interval(1000).pipe(
-            map(() => new Date())
-        );
-    }
+  ngOnInit() {
+
+    this.extraService.getTime().subscribe(time => {
+      this.clock = time;
+    });
+
+    setInterval(() => {
+      this.extraService.getTime().subscribe(time => {
+        this.clock = time;
+      });
+    }, 60000);
+  }
 
 }

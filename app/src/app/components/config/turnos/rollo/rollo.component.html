@@ -1,0 +1,61 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading">Atención:</h4>
+                <p>
+                    Este es un pequeño atajo para cargar un rollo entero de forma simple.
+                    <br />
+                    <b>Nota:</b> Deberá seleccionar prioridad y color, automáticamente se generaran <b>100</b> números desde el <b>0</b> al <b>99</b>, para las letras <b>A, B, C, D y E</b>.
+
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div *ngIf="alert?.message && !showEditarTurno" class="alert alert-{{alert.class}}" role="alert" [innerHTML]="alert.message"></div>
+
+            <form #f="ngForm" novalidate (ngSubmit)="save(f)">
+
+                <div class="row">
+                    <div class="col-6">
+                        <h5 class="border-bottom"><strong>Prioridad</strong></h5>
+
+                        <select class="form-control" [(ngModel)]="turnos.tipo" name="tipo" #tipo="ngModel" required>
+                          <option value="prioritario">Prioritario</option>
+                          <option value="noPrioritario">No Prioritario</option>
+                        </select>
+                        <span [hidden]="tipo.valid || (tipo.pristine && !f.submitted)" class="badge badge-danger">Debe ingresar un valor</span>
+                    </div>
+
+                    <div class="col-6">
+                        <h5 class="border-bottom"><strong>Seleccione el color</strong></h5>
+                        <div class="inline-block color">
+                            <ng-container *ngFor="let _color of colors; let i=index">
+                                <input name="color" id="color-{{_color}}" value="{{_color}}" type="radio" class="btn cuadradito violeta" [(ngModel)]="turnos.color" #color="ngModel" required />
+                                <label for="color-{{_color}}" class="cuadradito {{_color}}"><span></span></label>
+                            </ng-container>
+
+                            <span [hidden]="f?.controls?.color?.valid || (f?.controls?.color?.pristine && !f.submitted)" class="badge badge-danger">Debe seleccionar un color</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <br>
+                <div class="row">
+                    <div class="col text-right">
+                        <button type="button" class="btn btn-default" (click)="cancelar()">Cancelar</button>
+
+                        <button type="submit" class="btn btn-primary ">Guardar</button>
+                    </div>
+                </div>
+                <hr>
+
+            </form>
+
+        </div>
+    </div>
+</div>

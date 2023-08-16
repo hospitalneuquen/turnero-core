@@ -1,26 +1,67 @@
 <div class="content">
     <div class="container-fluid">
+
         <div class="numeros-container" *ngIf="ventanillas?.length">
             <ng-container *ngFor="let ventanilla of ventanillas">
-                <ng-container *ngIf="ventanilla?.turno?._id">
-                    <div class="numero-container" [ngClass]="ventanilla?.turno?.color">
-                        <div class="box fondo nuevo-turno" [ngClass]="{'blink-5': ventanillaBlink?.ventanilla === ventanilla._id}">
+
+                <!-- && ventanilla?.turno -->
+                <ng-container *ngIf="ventanilla && ventanilla.disponible && ventanilla?.ultimo && ventanilla?.ultimo[ventanilla?.atendiendo]">
+                    <div class="numero-container" [ngClass]="ventanilla?.ultimo[ventanilla?.atendiendo]?.color">
+
+                        <div class="box fondo nuevo-turno" [ngClass]="{'blink-5': ventanillaBlink?.ventanilla?._id === ventanilla._id && ventanillaBlink?.type !== 'pausar', 
+                            'pausada': ventanilla.pausa || (ventanilla.pausa &&  ventanillaBlink?.ventanilla?._id === ventanilla._id && ventanillaBlink?.type === 'pausar')}">
+
 
                             <div class="cabezal">
                                 <div class="texto-cabezal">ventanilla
-                                    <span class="numero-cabezal">{{ventanilla.numero}}</span>
+                                    <span class="numero-cabezal">{{ventanilla.numeroVentanilla}}</span>
                                 </div>
                                 <div class="cuerpo">
-                                    <div class="tipo-turno">
-                                        <b *ngIf="ventanilla.turno.tipo === 'prioritario'">prioridad</b>
-                                        <b *ngIf="ventanilla.turno.tipo === 'no-prioritario'">común/especial</b>
-                                    </div>
-                                    <div class="numero">
-                                        {{ventanilla.turno.numeros.letra}}
-                                        <span *ngIf="ventanillaBlink?.numeroAnterior && ventanillaBlink?.ventanilla === ventanilla._id">{{ventanillaBlink.numeroAnterior}}</span>
-                                        <span *ngIf="!ventanillaBlink?.numeroAnterior || ventanillaBlink.numeroAnterior >= ventanilla.turno.numeros.numero">{{ventanilla.turno.numeros.numero}}</span>
-                                    </div>
-                                    <div class="llamado success"><i class="mdi mdi-bell-ring mdi-36px"></i> Llamado {{ventanilla.turno.numeros.llamado}}</div>
+                                    <ng-container *ngIf="ventanilla.pausa">
+                                        <div class="tipo-turno">
+                                        </div>
+                                        <div class="numero">
+                                            NO
+                                            <br /> DISPONIBLE
+                                        </div>
+                                    </ng-container>
+
+                                    <!-- <ng-container *ngIf="!ventanilla.pausa && (
+                                        (ventanilla.atendiendo === 'prioritario' && ventanilla?.turno && ventanilla?.turno.tipo == 'prioritario' && ventanilla.ultimo.numero >= ventanilla.turno.ultimoNumero) || 
+                                        (ventanilla.atendiendo === 'noPrioritario' && ventanilla?.turno && ventanilla?.turno.tipo == 'noPrioritario' && ventanilla.ultimo.numero >= ventanilla.turno.ultimoNumero)
+                                    )"> -->
+                                    <ng-container *ngIf="!ventanilla.pausa">
+                                        <div class="tipo-turno ">
+                                            <b *ngIf="ventanilla.atendiendo === 'prioritario' ">prioridad</b>
+                                            <b *ngIf="ventanilla.atendiendo === 'noPrioritario' ">común</b>
+                                        </div>
+
+                                        <div class="numero ">
+                                            <!-- 
+                                            {{ventanilla.turno.letraInicio ? ventanilla.turno.letraInicio : ''}}
+
+                                            <span *ngIf="ventanillaBlink?.ventanilla._id !== ventanilla._id ">
+                                                {{ventanilla.ultimo.numero}}
+                                            </span>
+
+                                            <span *ngIf="ventanillaBlink?.ventanilla._id === ventanilla._id ">
+                                            </span> -->
+
+                                            <!-- && ventanilla.turno -->
+                                            <ng-container *ngIf="ventanilla && ventanilla.ultimo[ventanilla.atendiendo]">
+                                                <!-- {{ventanilla.ultimo[ventanilla?.turno?.tipo].letra}} {{ventanilla.ultimo[ventanilla?.turno?.tipo].numero}} -->
+                                                {{ventanilla.ultimo[ventanilla?.atendiendo].letra}} {{ventanilla.ultimo[ventanilla?.atendiendo].numero}}
+                                            </ng-container>
+
+                                            <!-- <span *ngIf="!ventanillaBlink?.numeroAnterior || ventanillaBlink.numeroAnterior>= ventanilla.turno.numero">{{ventanilla.turno.numero}}</span> -->
+                                        </div>
+
+                                        <!-- && ventanilla.turno && ventanilla.ultimo[ventanilla.turno.tipo] -->
+                                        <div class="llamado success" *ngIf="ventanilla && ventanilla.ultimo[ventanilla.atendiendo]">
+                                            <!-- <i class="mdi mdi-bell-ring mdi-36px"></i> Llamado {{ventanilla.ultimo[ventanilla?.turno?.tipo].llamado || 1}} -->
+                                            <i class="mdi mdi-bell-ring mdi-36px"></i> Llamado {{ventanilla.ultimo[ventanilla?.atendiendo].llamado || 1}}
+                                        </div>
+                                    </ng-container>
                                 </div>
                             </div>
 
@@ -29,20 +70,24 @@
                 </ng-container>
             </ng-container>
         </div>
-        <div class="row" *ngIf="!ventanillas">
+
+        <div class="row" *ngIf="!ventanillas || ventanillas.length === 0">
             <div class="col">
                 <h3>Volvemos en unos instantes... <i class="mdi mdi-36px mdi-tag-faces"></i></h3>
             </div>
         </div>
+
         <!--<div class="row" *ngIf="!ventanillas[0]?.turno">
             <div class="col">
                 <h3>No hay turnos configurados... por favor espere.</h3>
             </div>
         </div>-->
+
     </div>
 </div>
+
 <audio *ngIf="audio && ventanillas" autoplay>
-    <source src="./assets/audio/ding-dong.mp3">
-    <source src="./assets/audio/ding-dong.ogg">
-    <source src="./assets/audio/ding-dong.m4a">
+    <source src="./assets/audio/ding-dong.mp3" type="audio/mpeg">
+    <source src="./assets/audio/ding-dong.ogg" type="audio/ogg">
+    <source src="./assets/audio/ding-dong.wav" type="audio/wav">
 </audio>

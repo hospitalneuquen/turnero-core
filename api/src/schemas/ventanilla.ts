@@ -1,26 +1,48 @@
-import * as mongoose from 'mongoose'
+import { Types } from 'mongoose';
+import * as mongoose from 'mongoose';
+// import * as EventEmitter from 'events';
+// let updateEmitter = new EventEmitter();
 
-export const VentanillaSchema = new mongoose.Schema({
-    numero: {
+export let ventanillaSchema = new mongoose.Schema({
+    numeroVentanilla: {
         type: Number,
-        required: true
+        validate: {
+            // agregamos la validacion de un solo caracter
+            validator: function(v) {
+              return /\d{1}/.test(v);
+            },
+            message: '{VALUE} no es un valor válido, ingrese un número.'
+          },
+        required: [true, 'El número de ventanilla es requerido']
     },
-    // nombre: {
-    //     type: String,  // TODO usar slug + orden
-    //     required: true
-    // },
-    prioritaria: {
+    // ultimoComun: Number,
+    // ultimoPrioridad: Number,
+    ultimo: {
+        prioritario : {
+            tipo: String,
+            numero: Number,
+            letra: String,
+            color: String,
+            llamado: Number
+        },
+        noPrioritario : {
+            tipo: String,
+            numero: Number,
+            letra: String,
+            color: String,
+            llamado: Number
+        }
+    },
+    atendiendo: {
+        type: String,
+        enum: ['prioritario', 'noPrioritario']
+    },
+    disponible: Boolean,
+    pausa: Boolean,
+    enUso: {
         type: Boolean,
         default: false
-    },
-    pausa: {
-        type: Boolean,
-        default: false
-    },
-    disponible: {
-        type: Boolean,
-        default: false
-    },
+    }
 });
 
-export const Ventanilla = mongoose.model('ventanillas', VentanillaSchema, 'ventanillas');
+export let Ventanilla = mongoose.model('ventanillas', ventanillaSchema, 'ventanillas');

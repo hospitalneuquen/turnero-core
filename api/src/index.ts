@@ -3,7 +3,7 @@ const server = require("./server");
 const http = require("http");
 
 //create http server
-const httpPort = normalizePort(process.env.PORT || 1337);
+const httpPort = normalizePort(process.env.PORT || 3000);
 const app = server.Server.bootstrap().app;
 app.set("port", httpPort);
 const httpServer = http.createServer(app);

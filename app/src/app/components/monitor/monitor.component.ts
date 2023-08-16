@@ -1,3 +1,4 @@
+import { VentanillaComponent } from './../ventanilla/ventanilla.component';
 import { environment } from './../../../environments/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 
@@ -7,7 +8,7 @@ import { TurnosService } from './../../services/turnos.service';
 declare var EventSource: any;
 
 @Component({
-    selector: 'hpn-monitor',
+    selector: 'app-monitor',
     templateUrl: './monitor.component.html',
     styleUrls: ['./monitor.component.css']
 })
@@ -16,58 +17,35 @@ export class MonitorComponent implements OnInit {
     public ventanillas;
     private mensajesServidor: any = {};
     private eventSource: any;
-    private mensajePrevio = '';
+    private mensajePrevio: String = '';
     private EVENT_URL = environment.API + '/update';
-    public ventanillaBlink: any = {};
+    private ventanillaBlink: any = {};
 
     public audio = false;
 
     constructor(
-        public ventanillasService: VentanillasService,
-        private turnosService: TurnosService,
+        private VentanillasService: VentanillasService,
+        private TurnosService: TurnosService,
         private changeDetector: ChangeDetectorRef) { }
 
     ngOnInit() {
-        this.escucharEventosServidor();
         this.actualizarMonitor();
+        this.escucharEventosServidor();
     }
 
     actualizarMonitor() {
-        // buscamos ventanillas disponibles
-        this.ventanillasService.get({ disponible: true }).subscribe(ventanillas => {
-            const ventanillasAux: any = ventanillas;
-
-            // buscamos los turneros que están en uso
-            this.turnosService.get({ ultimoEstado: 'uso' }).subscribe(turnos => {
-
-                // Buscamos el último número que haya llamado una ventanilla para un turnero
-                ventanillasAux.forEach(ventanilla => {
-                    if (typeof ventanilla.turno === 'undefined') {
-                        ventanilla.turno = {};
-                    }
-
-                    turnos.forEach(turno => {
-                        // Trae un array de 1 sólo elemento
-                        this.turnosService.getActual(turno._id, ventanilla._id).subscribe(actual => {
-
-                            if (actual && actual[0]) {
-                                if (typeof ventanilla.turno._id === 'undefined') {
-                                    ventanilla.turno = actual[0];
-                                } else {
-                                    const dateCargado = new Date(ventanilla.turno.numeros.estado.fecha);
-                                    const dateActual = new Date(actual[0].numeros.estado.fecha);
-
-                                    if (dateActual > dateCargado) {
-                                        ventanilla.turno = actual[0];
-                                    }
-                                }
-                            }
-                        });
-                    });
-                    this.ventanillas = ventanillas;
+        // Buscamos las ventanillas disponibles
+        this.VentanillasService.get({ disponible: true }).subscribe(ventanillas => {
+            // const ventanillasAux: any = ventanillas;
+            this.ventanillas = ventanillas;
+            this.ventanillas.forEach((ventanilla, i) => {
+                this.TurnosService.get({ tipo: ventanilla.atendiendo }).subscribe(turnero => {
+                // this.TurnosService.get({ tipo: ventanilla.atendiendo, estado: 'activo' }).subscribe(turnero => {
+                    //this.ventanillas[i].turno = turnero[0];
                 });
             });
         });
+
     }
 
     escucharEventosServidor() {
@@ -77,19 +55,31 @@ export class MonitorComponent implements OnInit {
 
         // Para la oreja a los mensajes de servidor
         this.eventSource.onmessage = (evt) => {
-
             // Se actualiza el mensaje de servidor
             this.mensajesServidor = JSON.parse(evt.data);
+            // console.table(this.mensajesServidor.result);
 
             // Detector de cambios: Si el último mensaje de la API es diferente al previo, actualizar!
-            if (this.ventanillaBlink && this.mensajesServidor.result.timestamp !== this.ventanillaBlink.timestamp) {
+            if (this.ventanillaBlink && this.mensajesServidor.result.type === 'default'
+                && this.mensajesServidor.result.timestamp !== this.ventanillaBlink.timestamp) {
                 this.ventanillaBlink = null;
-                this.actualizarMonitor();
+
+                const index = this.ventanillas.findIndex( v => v._id === this.mensajesServidor.result.ventanilla._id);
+
+                this.ventanillas[index] = this.mensajesServidor.result.ventanilla;
+                this.ventanillas[index]['turno'] = this.mensajesServidor.result.turno;
+
                 this.dingDong();
             } else {
                 this.ventanillaBlink = this.mensajesServidor.result;
-                // console.log('this.ventanillaBlink', this.ventanillaBlink);
+
+                if (this.mensajesServidor.result.type === 'pausar') {
+                    const index = this.ventanillas.findIndex( v => v._id === this.mensajesServidor.result.ventanilla._id);
+
+                    this.ventanillas[index] = this.mensajesServidor.result.ventanilla;
+                }
             }
+
 
             // Detectar cambios
             this.changeDetector.detectChanges();

@@ -1,0 +1,118 @@
+<ng-container>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col ">
+                <h2>Configuración de turnos</h2>
+            </div>
+
+            <div class="col-2 text-right" *ngIf="!showEditarTurno">
+                <button class="btn btn-sm btn-default" (click)="agregarRollo()" [disabled]="servidorCaido || turnos.length">Agregar rollo</button>
+                <button class="btn btn-sm btn-primary" (click)="agregarTurno()" [disabled]="servidorCaido">Agregar turno</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+
+                <div *ngIf="alert?.message && !showEditarTurno" class="alert alert-{{alert.class}}" role="alert" [innerHTML]="alert.message"></div>
+
+                <app-panel-turno *ngIf="showEditarTurno" [turno]="turnoSeleccionado" (onCloseEmit)="onCloseEmit($event)" (onEditEmit)="onEditEmit($event)"></app-panel-turno>
+            </div>
+        </div>
+
+
+        <div class="row" *ngIf="!showEditarTurno">
+            <!--*ngIf="turnos"-->
+            <div class="col-12">
+
+                <ng-container *ngIf="turnos.length">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr class="text-center">
+                                <td><strong>Prioridad</strong></td>
+                                <td><strong>Color</strong></td>
+                                <td><strong>Letra</strong></td>
+                                <td><strong>Numeración</strong></td>
+                                <td><strong>Actual</strong></td>
+                                <td><strong>Estado</strong></td>
+                                <td><strong>Eliminar</strong></td>
+                            </tr>
+                        </thead>
+                        <ng-container *ngFor="let turno of turnos">
+                            <tbody>
+                                <tr>
+
+                                    <td class="text-center capitalize" (click)="editarTurno(turno)">
+                                        {{ turno.tipo }}
+                                    </td>
+
+                                    <td class="text-center">
+                                        <span class="cuadradito {{turno.color}}" (click)="editarTurno(turno)">
+                                            {{ turno.color }}
+                                        </span>
+                                    </td>
+
+                                    <td class="text-center" (click)="editarTurno(turno)">
+                                        {{ turno.letraInicio | uppercase}}
+                                    </td>
+
+                                    <td class="text-center" (click)="editarTurno(turno)">
+                                        {{ turno.numeroInicio }} / {{ turno.numeroFin }}
+                                    </td>
+
+                                    <td class="text-center" (click)="editarTurno(turno)">
+                                        <ng-container *ngIf="turno.estado === 'activo' && turno.ultimoNumero >= turno.numeroInicio">
+                                            {{ turno.ultimoNumero }}
+                                        </ng-container>
+                                    </td>
+
+                                    <td class="text-center" (click)="editarTurno(turno)">
+                                        <ng-container *ngIf="turno.estado === 'finalizado'">
+                                            Finalizado
+                                        </ng-container>
+
+                                        <ng-container *ngIf="turno.estado === 'activo' && turno.ultimoNumero <= turno.numeroFin && turno.ultimoNumero >= turno.numeroInicio">
+                                            En curso
+                                        </ng-container>
+
+                                        <ng-container *ngIf="turno.estado === 'activo' && turno.ultimoNumero < turno.numeroInicio">
+                                            Sin usar
+                                        </ng-container>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <button class="hover btn btn-danger btn-sm" (click)="delete(turno)"><i class="mdi mdi-delete"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </ng-container>
+                    </table>
+
+                    <!--
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="border-bottom"><strong>Limpiar turnero</strong></h5>
+                            <button class="btn btn-danger" (click)="eliminarTurnos()">
+                                Eliminar todos los turnos
+                            </button>
+                        </div>
+                    </div>
+                    -->
+                </ng-container>
+
+                <ng-container *ngIf="!turnos.length">
+                    <h4 *ngIf="!turnos.length">No hay turnos cargados. <span class="text-danger" *ngIf="servidorCaido">(Servidor caído)</span></h4>
+                    Psst! Podés agregar facilmente un rollo estandar con las letras de la A a la E y numeración del 0 al 99 con tan solo 4 clicks.
+
+                    <a routerLink="/config/turnos/rollo" routerLinkActive="active">Agregar rollo</a>
+                </ng-container>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</ng-container>

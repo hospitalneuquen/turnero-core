@@ -1,7 +1,10 @@
 export interface IVentanillas {
-    id: string;
-    numero: string;
-    prioritaria: boolean;
-    disponible: boolean;
-    pausa: boolean;
+    id: String;
+    ultimoPrioridad: Number;
+    ultimoComun: Number;
+    disponible: Boolean;
+    pausa: Boolean;
+    numeroVentanilla: String;
+    atendiendo: String;
+    llamado: Number;
 }

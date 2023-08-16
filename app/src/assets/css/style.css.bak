@@ -1,18 +1,18 @@
-/* You can add global styles to this file, and also import other style files */
-
-$mdi-font-path: '~@mdi/font/fonts/';
-@import '~@mdi/font/scss/materialdesignicons';
-
-/**
-A revisar!!!!!
-*/
-
-// @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic);
+@charset "UTF-8";
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic);
 
 /* TURNEROS */
 
 
 /*  Estilos globales */
+
+.capitalize {
+    text-transform: capitalize;
+}
+
+.upper {
+    text-transform: uppercase;
+}
 
 
 /* Rules for sizing the icon. */
@@ -144,9 +144,13 @@ div.violeta div.texto {
 }
 
 .inactivo {
+    /*
     -webkit-filter: grayscale(100%);
+    */
     /* Safari 6.0 - 9.0 */
+    /*
     filter: grayscale(100%);
+    */
 }
 
 .no-gutters {
@@ -163,9 +167,14 @@ div.violeta div.texto {
 .friso {
     background-color: black;
     color: white;
-    height: 100px;
-    padding: 20px;
+    height: 80px;
+    padding: 10px;
     width: 100%;
+}
+
+.friso h1 {
+    margin: 0;
+    font-size: 3.2em;
 }
 
 .friso-lateral {
@@ -203,15 +212,23 @@ div.violeta div.texto {
 }
 
 .box-turno:hover {
+    /*
     -webkit-filter: grayscale(15%);
+    */
     /* Safari 6.0 - 9.0 */
+    /*
     filter: grayscale(15%);
+    */
 }
 
 .box-turno:focus {
+    /*
     -webkit-filter: grayscale(0%);
+    */
     /* Safari 6.0 - 9.0 */
+    /*
     filter: grayscale(0%);
+    */
 }
 
 .box-ventanilla {
@@ -221,6 +238,10 @@ div.violeta div.texto {
     height: 200px;
     padding: 30px;
     text-align: center;
+}
+
+.box {
+    opacity: 1;
 }
 
 .blink {
@@ -235,13 +256,13 @@ div.violeta div.texto {
 
 @keyframes blink-animation {
     to {
-        visibility: hidden;
+        opacity: .2;
     }
 }
 
 @-webkit-keyframes blink-animation {
     to {
-        visibility: hidden;
+        opacity: .2;
     }
 }
 
@@ -291,6 +312,7 @@ div.violeta div.texto {
 }
 
 .numero-container {
+    min-width: 265px;
     padding: 0 5px 0 10px;
 }
 
@@ -329,8 +351,8 @@ span.numero-cabezal {
 
 .cuerpo>.numero {
     color: black;
-    font-size: 12rem;
-    line-height: 12rem;
+    font-size: 7rem;
+    line-height: 7rem;
     font-weight: bold;
     margin: 0 20px 0 20px;
     vertical-align: center;
@@ -352,11 +374,12 @@ span.numero-cabezal {
     font-size: 2rem;
     font-weight: 500;
     line-height: 1.5rem;
-    margin: 80px 0 0;
+    margin: 50px 0 0;
     text-align: center;
     padding: 15px;
     vertical-align: middle;
     white-space: nowrap;
+    text-shadow: 1px 1px 0px #6a9436;
 }
 
 .cuerpo>.llamado.success {
@@ -406,6 +429,45 @@ h2.zocaloNumero {
     border-bottom: solid 1px black;
     line-height: 3rem;
     margin-bottom: 30px;
+}
+
+.color>input[type="radio"] {
+    display: none;
+}
+
+.color>input[type="radio"]+label {
+    color: #292321;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.color>input[type="radio"]+label span {
+    display: inline-block;
+    width: 19px;
+    height: 19px;
+    margin: -1px 4px 0 0;
+    vertical-align: middle;
+    cursor: pointer;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    height: 60px;
+    width: 60px;
+}
+
+.color>input[type="radio"]+label span {}
+
+.color>input[type="radio"]:checked+label span {
+    outline: solid 2px #00A8E0;
+}
+
+.cuadradito:checked {}
+
+.color>input[type="radio"]+label span,
+.color>input[type="radio"]:checked+label span {
+    -webkit-transition: background-color 0.4s linear;
+    -o-transition: background-color 0.4s linear;
+    -moz-transition: background-color 0.4s linear;
+    transition: background-color 0.4s linear;
 }
 
 .cuadradito {
@@ -570,15 +632,15 @@ h2.zocaloNumero {
 /* Links*/
 
 a {
-    color: #111111;
+    /* color: #111111; */
+    color: #00A8E0;
 }
 
 a:hover,
 a:active,
 a:focus {
     outline: 5px;
-    text-decoration: none;
-    color: #00A8E0;
+    /* text-decoration: none; */
 }
 
 
@@ -614,4 +676,3 @@ a:focus {
     border-color: #00A8E0;
     color: #00A8E0;
 }
-

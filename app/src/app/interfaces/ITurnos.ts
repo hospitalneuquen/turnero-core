@@ -1,26 +1,26 @@
 export interface ITurnos {
-    id: string;
-    _id: string;
-    color: string;
-    tipo: string;
-    letraInicio: string;
-    letraFin: string;
-    numeroInicio: number;
-    numeroFin: number;
+    id: String;
+    _id: String;
+    color: String;
+    tipo: String;
+    letraInicio: String;
+    letraFin: String;
+    numeroInicio: Number;
+    numeroFin: Number;
     numeros: [{
-        id: string,
-        letra: string;
-        numero: number;
-        llamado: number;
-        ventanilla: string,
-        ultimoEstado: number;
+        id: String,
+        letra: String;
+        numero: Number;
+        llamado: Number;
+        ventanilla: String,
+        ultimoEstado: Number;
         estado: [{
             fecha: Date;
-            valor: string
+            valor: String
         }]
     }];
     estado: [{
         fecha: Date;
-        valor: string
+        valor: String
     }];
 }

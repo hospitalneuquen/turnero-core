@@ -1,304 +1,450 @@
 import * as express from 'express';
-// import { Turnero } from '../models/turnero';
-import { Turno } from '../schemas/turno';
-import { Types } from "mongoose";
+import * as mongoose from 'mongoose';
 
-// import * as utils from '../../../utils/utils';
-// import { defaultLimit, maxLimit } from './../../../config';
-const LETRAS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+import { Turno } from '../schemas/turno';
+import { Ventanilla } from './../schemas/ventanilla';
+
+var ObjectID = require('mongodb').ObjectID;
 
 let router = express.Router();
 
-// Variable global para anunciar cambios desde el servidor
-// Se puede setear dentro de cualquier ruta para anunciar cambios servidor ==> cliente
-let cambio: any = { timestamp: new Date().getMilliseconds() };
-
-
-// SSE
-router.get('/update', (req, res, next) => {
-
-    // Headers
-    res.setHeader('Content-type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
-    // Message
-    res.write('id: ' + (new Date().getMilliseconds()) + '\n');
-    res.write('retry: 500\n');
-
-    setInterval(() => {
-        res.write('data:' + JSON.stringify({ result: cambio }) + '\n\n') // Note the extra newline
-    }, 500);
-
-});
-
-// Service getActual() en la App
-router.get('/turnos/:id/ventanilla/:ventanilla', async (req, res, next) => {
-
-    // en aggreggation framework mongoose no hace el parseo instantaneo 
-    // del string al object id, asique lo hacemos a mano
-    const id = Types.ObjectId(req.params.id);
-    const ventanilla = Types.ObjectId(req.params.ventanilla);
-
-
-    const turnos = await Turno.aggregate([
-
-        { '$project': { color: 1, tipo: 1, numeros: 1 } },
-        { '$match': { _id: id } },
-        { '$unwind': '$numeros' },
-        { '$match': { 'numeros.ultimoEstado': 'llamado', 'numeros.ventanilla': ventanilla } },
-        { '$unwind': '$numeros.estado' },
-        { '$match': { 'numeros.estado.valor': 'llamado' } },
-        { '$sort': { 'numeros.estado.fecha': -1 } },
-        { '$limit': 1 }
-    ]);
-    return res.json(turnos);
-});
-
-router.get('/turnos/:id/ventanilla/:ventanilla/prev', async (req, res, next) => {
-    const id = Types.ObjectId(req.params.id);
-    const ventanilla = Types.ObjectId(req.params.ventanilla);
-
-    const data = await Turno.aggregate([
-        { '$project': { color: 1, tipo: 1, numeros: 1 } },
-        { '$match': { _id: id } },
-        { '$unwind': '$numeros' },
-        { '$match': { 'numeros.ultimoEstado': 'llamado', 'numeros.ventanilla': ventanilla } },
-        { '$unwind': '$numeros.estado' },
-        { '$match': { 'numeros.estado.valor': 'llamado' } },
-        { '$sort': { 'numeros.estado.fecha': -1 } }
-    ]);
-
-    if (data.length > 1) {
-        cambio = {
-            ventanilla: ventanilla,
-            numeroAnterior: data[1].numeros.numero,
-            tipo: data[1].tipo,
-            timestamp: new Date().getMilliseconds()
-        };
-        res.json(data[1]);
+router.get('/turnero/:id', (req, res, next) => {
+    // verificamos que sea un ObjectId válido
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(404).send('Turno no encontrado');
     }
-    else {
-        cambio = {
-            ventanilla: ventanilla,
-            tipo: data[0].tipo,
-            timestamp: new Date().getMilliseconds()
-        };
-        res.json(data[0]);
-    }
-});
 
-router.get('/turnos/:id/next', async (req, res, next) => {
-    const id = Types.ObjectId(req.params.id);
-
-    const data = await Turno.aggregate([
-        { $project: { "color": 1, "tipo": 1, "numeros": 1 } },
-        { "$match": { "_id": id } },
-        { "$unwind": "$numeros" },
-        { "$match": { "numeros.ultimoEstado": 'libre' } },
-        { $limit: 1 }
-    ]);
-
-    cambio = {
-        timestamp: new Date().getMilliseconds()
-    };
-    return res.json(data);
-
-});
-// db.getCollection('turnos').aggregate([{"$match": {"_id": ObjectId("58ee710153b5d847c868ce83")}}, { "$unwind": "$numeros" },{"$match": {"numeros.ultimoEstado": 'libre'}}, { $limit : 1 }])
-
-router.get('/turnos/:id/count', async (req, res, next) => {
-
-    const id = Types.ObjectId(req.params.id);
-
-    const turnos = await Turno.aggregate([
-        { $project: { "color": 1, "tipo": 1, "numeros": 1 } },
-        { "$match": { "_id": id } },
-        { "$unwind": "$numeros" },
-        { "$match": { "numeros.ultimoEstado": 'libre' } },
-    ]);
-
-    return res.json({
-        count: turnos.length
-    });
-
-});
-
-router.get('/turnos/:id*?', async (req, res, next) => {
-    if (req.params.id) {
-        const data = await Turno.findById(req.params.id);
-        return res.json(data);
-    } else {
-        const query = Turno.find();
-        if (req.query.tipo) {
-            query.where('tipo').equals(req.query.tipo);
+    Turno.findOne({_id: req.params.id}, (err, data) => {
+        if (err) {
+            return next(err);
         }
-        const data = await query;
-        return res.json(data);
+
+        if (!data) {
+            return res.status(404).send('Turno no encontrado');
+        }
+
+        res.json(data);
+    });
+});
+
+router.get('/turnero', (req, res, next) => {
+    let query = {
+        ...(req.query.tipo) && { 'tipo': req.query.tipo },
+        // ...(req.query.noFinalizados) && {'$where' : 'this.ultimoNumero < this.numeroFin'}
+        ...(req.query.estado) && { 'estado': req.query.estado },
+        estado: { $ne: 'finalizado' }
     }
+
+    Turno.find(query, {}, { createdAt: -1 }, (err, data) => {
+        if (err) {
+            return next(err);
+        }
+
+        res.json(data);
+    });
 });
 
-router.get('/turnos', async (req, res, next) => {
-    const data = await Turno.find();
-    return res.json(data);
+router.post('/turnero', async (req, res, next) => {
+    try {
+        const data = await save(req.body);
+
+        res.json(data);
+
+    } catch (err) { 
+        return next(err);
+    }
+    
+    /*
+    if (!data) {
+        return next(data.err);
+    }
+    */
+
+    /*
+    let turno: any = new Turno(req.body);
+
+    turno.estado = (turno.estado) ? turno.estado : 'activo';
+    
+        turno.numeroInicio = parseInt(turno.numeroInicio);
+        turno.numeroFin = parseInt(turno.numeroFin);
+        // to lower
+        if (req.body.letraInicio) {
+            turno.letraInicio = req.body.letraInicio.toLowerCase();
+        }
+    
+        // si no se le ha pasado el ultimo numero, lo inicializamos en -1 
+        // y de esta forma sabemos que aun no ha comenzado
+        if (!turno.ultimoNumero) {
+            turno.ultimoNumero = turno.numeroInicio - 1;
+        }
+    
+        // if (req.body.letraFin) {
+        //     turno.letraFin = req.body.letraFin.toLowerCase();
+        // }
+    
+        // validaciones
+        // const validar = this.validar(turno);
+        // if (!validar.valid) {
+        //     return res.status(500).send({ status: 500, message: validar.message, type: 'internal' });
+        // }
+    
+        // filtramos las letras que vamos  utilizar
+        // if (letraInicio && letraFin) {
+        //     letras = LETRAS.filter((letra) => {
+        //         return (letra.charCodeAt(0) <= letraFin.charCodeAt(0)) ? letra : null;
+        //     });
+    
+        //     if (letras.length) {
+        //         turno.ultimoNumeroFin = (turno.numeroFin - turno.numeroInicio) * letras.length;
+        //     }
+        // } else {
+        //     if (turno.numeroInicio == 0) {
+        //         turno.ultimoNumeroFin = turno.numeroFin + 1;
+        //     } else {
+        //         turno.ultimoNumeroFin = (turno.numeroFin - turno.numeroInicio);
+        //     }
+        // }
+    
+        // COMIENZO DEL CALLBACK HELL :D :D :D
+        let conditions = {
+            ...(req.params.id) && { _id: { $ne: new ObjectID(req.params.id) } },
+            tipo: turno.tipo,
+            estado: 'activo',
+            letraInicio: turno.letraInicio,
+            //{$and: [{numeroInicio: {$lte: 1}, numeroInicio: {$lte: 4}}, {numeroFin: {$lte: 1}, numeroFin: {$gte: 4} }]} // working on robomongo
+            $and: [
+                //
+                {
+                    $or: [{
+                        numeroInicio: { $lte: turno.numeroFin },
+                    }]
+                }, // OK!
+    
+                {
+                    $or: [{
+                        numeroFin: { $gte: turno.numeroInicio }
+                    },]
+                },
+                {
+                    $or: [{
+                        numeroInicio: { $lte: turno.numeroInicio },
+                    },
+                    {
+                        numeroInicio: { $lte: turno.numeroFin }
+                    },
+                    {
+                        numeroFin: { $gte: turno.numeroInicio },
+                    },
+                    {
+                        numeroFin: { $gte: turno.numeroFin }
+                    }
+                    ]
+                }
+            ]
+        };
+    
+    
+        // fin validaciones
+    
+        Turno.find(conditions, (err, exists) => {
+            if (err) {
+                return next(err);
+            }
+    
+            if (exists.length > 0) {
+                //return res.status(500).send({ error: 'Ya existe el turno de este tipo y con esa letra y numeración' });
+                return next(new Error('Ya existe el turno de este tipo y con esa letra y numeración'));
+            }
+    
+            turno.save((err, data) => {
+                if (err) {
+                    return next(err);
+                }
+    
+                res.json(data);
+            });
+    
+        });
+        */
 });
 
-router.post('/turnos', async (req, res, next) => {
-    let letras = [];
-    let letraInicio = '', letraFin = '';
+router.post('/turnero/rollo', async (req, res, next) => {
+    //const LETRAS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+    const LETRAS = ['a', 'b', 'c', 'd', 'e'];
 
+    let turnos: any[] = [];
+    try {
+        for (const letra of LETRAS) {
+            //let turno: any = new Turno(req.body);
+            // recorremos los numeros
+            let turno = {
+                letraInicio: letra,
+                color: req.body.color,
+                tipo: req.body.tipo,
+                createdAt: new Date(),
+                estado: 'activo',
+                ultimoNumero: -1,
+                numeroInicio: 0,
+                numeroFin: 99
+            };
+
+            turnos.push(await save(turno));
+        }
+
+        return res.json(turnos);
+        // if (turnos.length === LETRAS.length) {
+        //     res.json(turnos);
+        // }
+        // await Promise.all(turnos).then(turnos => {
+        //     console.log(turnos);
+        //     res.json(turnos);
+        // }).catch( err => {
+        //     console.log(err);
+        //     return next(err);
+        // });
+        
+
+    } catch (err) { 
+        return next(err);
+    }
+
+        // await Promise.all(turnos).then(turnos => {
+        //     console.log(turnos);
+        //     res.json(turnos);
+        // }).catch( err => {
+        //     console.log(err);
+        //     return next(err);
+        // })
+        
+        // try {
+        //     console.log(data);
+            
+        //     res.json(data);
+    
+        // } catch (err) { 
+        //     return next(err);
+        // }
+
+});
+
+
+router.put('/turnero/:id', (req, res, next) => {
+    let turno: any = new Turno(req.body);
+
+    turno.estado = (turno.estado) ? turno.estado : 'activo';
+
+    turno.numeroInicio = parseInt(turno.numeroInicio);
+    turno.numeroFin = parseInt(turno.numeroFin);
     // to lower
     if (req.body.letraInicio) {
-        letraInicio = req.body.letraInicio.toLowerCase();
+        turno.letraInicio = req.body.letraInicio.toLowerCase();
     }
 
+    // si no se le ha pasado el ultimo numero, lo inicializamos en -1 
+    // y de esta forma sabemos que aun no ha comenzado
+    turno.ultimoNumero = turno.numeroInicio - 1;
+
+    /*
     if (req.body.letraFin) {
-        letraFin = req.body.letraFin.toLowerCase();
+        turno.letraFin = req.body.letraFin.toLowerCase();
     }
+    */
 
+    turno.isNew = false;
 
-    let turnos = new Turno(req.body);
-    turnos['numeros'] = [];
-
-    // filtramos las letras que vamos  utilizar
-    if (letraInicio && letraFin) {
-        letras = LETRAS.filter((letra) => {
-            return (letra.charCodeAt(0) <= letraFin.charCodeAt(0)) ? letra : null;
-        });
-
-        if (letras.length) {
-            // recorremos las letras
-            letras.forEach(function (val, index) {
-                let i = 0;
-                // recorremos los numeros
-                for (i; i < req.body.step; i++) {
-                    const _turno = {
-                        letra: val,
-                        numero: i,
-                        llamado: 0,
-                        ultimoEstado: 'libre',
-                        ventanilla: null,
-                        estado: [{
-                            fecha: new Date(),
-                            valor: 'libre'
-                        }]
-                    };
-
-                    turnos['numeros'].push(_turno);
-                }
-
-            });
-        }
-    } else {
-        let i = req.body.numeroInicio;
-        // recorremos los numeros
-        for (i; i <= req.body.numeroFin; i++) {
-            const _turno = {
-                letra: null,
-                numero: i,
-                llamado: 0,
-                ultimoEstado: 'libre',
-                ventanilla: null,
-                estado: [{
-                    fecha: new Date(),
-                    valor: 'libre'
+    let conditions = {
+        ...(req.params.id) && { _id: { $ne: new ObjectID(req.params.id) } },
+        tipo: turno.tipo,
+        estado: 'activo',
+        letraInicio: turno.letraInicio,
+        //{$and: [{numeroInicio: {$lte: 1}, numeroInicio: {$lte: 4}}, {numeroFin: {$lte: 1}, numeroFin: {$gte: 4} }]} // working on robomongo
+        $and: [
+            //
+            {
+                $or: [{
+                    numeroInicio: { $lte: turno.numeroFin },
                 }]
-            };
+            }, // OK!
 
-            turnos['numeros'].push(_turno);
-        }
-    }
-
-    // asignamos el ultimo estado de resumen
-    turnos['ultimoEstado'] = 'uso';
-    // cargamos el estado en el array de estados
-    turnos['estado'].push({ fecha: new Date(), valor: 'uso' });
-
-    // guardamos el turno
-    await turnos.save();
-
-    return res.json(turnos);
-});
-
-router.put('/turnos/:id', async (req, res, next) => {
-    const data = await Turno.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    return res.json(data);
-});
-
-router.patch('/turnos/:id', async (req, res, next) => {
-    let conditions = {};
-    let modificacion = {};
-    let options = {};
-
-    conditions['_id'] = req.params.id;
-
-    if (req.body.accion) {
-
-        if (req.body.accion === 'cambio_estado_numero') {
-            conditions['numeros._id'] = req.body.idNumero;
-
-            modificacion = {
-                $push: { "numeros.$.estado": req.body.valores.estado }
-            };
-
-            options = { upsert: true };
-        } else if (req.body.accion === 'cambio_ultimo_estado') {
-            conditions['numeros._id'] = req.body.idNumero;
-
-            modificacion = {
-                $set: {
-                    "numeros.$.ventanilla": req.body.valores.ventanilla,
-                    "numeros.$.llamado": req.body.valores.llamado,
-                    "numeros.$.ultimoEstado": req.body.valores.ultimoEstado
-                }
-            };
-
-            options = { upsert: true };
-        } else if (req.body.accion === 'rellamar') {
-            conditions['numeros._id'] = req.body.idNumero;
-
-            modificacion = {
-                $inc: {
-                    "numeros.$.llamado": req.body.valores.inc
-                }
-            };
-
-            options = { upsert: true };
-        } else if (req.body.accion === 'turnero_finalizado') {
-
-            modificacion = {
-                $push: {
-                    estado: req.body.valores.estado
+            {
+                $or: [{
+                    numeroFin: { $gte: turno.numeroInicio }
+                },]
+            },
+            {
+                $or: [{
+                    numeroInicio: { $lte: turno.numeroInicio },
                 },
-                $set: {
-                    "ultimoEstado": req.body.valores.ultimoEstado
+                {
+                    numeroInicio: { $lte: turno.numeroFin }
+                },
+                {
+                    numeroFin: { $gte: turno.numeroInicio },
+                },
+                {
+                    numeroFin: { $gte: turno.numeroFin }
                 }
-            };
+                ]
+            }
+        ]
+    };
 
-            options = { upsert: true };
+
+    // fin validaciones
+
+    Turno.find(conditions, (err, exists) => {
+        if (err) {
+            return next(err);
         }
 
+        if (exists.length > 0) {
+            //return res.status(500).send({ error: 'Ya existe el turno de este tipo y con esa letra y numeración' });
+            return next(new Error('Ya existe el turno de este tipo y con esa letra y numeración'));
+        }
 
-    }
+        turno.save((err, data) => {
+            if (err) {
+                return next(err);
+            }
 
-    const data = await Turno.findOneAndUpdate(conditions, modificacion, options);
-
-    cambio = {
-        ventanilla: req.body.valores.ventanilla,
-        timestamp: new Date().getMilliseconds()
-    };
-    res.json(data);
-
+            res.json(data);
+        });
+    });
 });
 
-// router.delete('/turnero/:id', function (req, res, next) {
-//     Turnero.findByIdAndRemove(req.params._id, function (err, data) {
-//         if (err) {
-//             return next(err);
-//         }
+/* TODO
+router.patch('/turnero/:id', function (req, res, next) {
+});
+*/
 
-//         res.json(data);
-//     });
-// });
+router.delete('/turnero/:id', function (req, res, next) {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return next('ObjectID Inválido');
+    }
 
-export default router;
+    Turno.findById(req.params.id, (err, data) => {
+        data.remove((errOnDelete) => {
+            if (errOnDelete) {
+                return next(errOnDelete);
+            }
+            return res.json(data);
+        });
+    });
+});
+
+
+
+/**
+ * Guardamos un turno, si no existe lo creamos, si no lo actualizamos
+ * 
+ * @param {any} Req.body 
+ * @returns Turno
+ */
+async function save(data) {
+    let turno: any = new Turno(data);
+
+    turno.estado = (turno.estado) ? turno.estado : 'activo';
+
+    turno.numeroInicio = parseInt(turno.numeroInicio);
+    turno.numeroFin = parseInt(turno.numeroFin);
+    // to lower
+    if (turno.letraInicio) {
+        turno.letraInicio = turno.letraInicio.toLowerCase();
+    }
+
+    // si no se le ha pasado el ultimo numero, lo inicializamos en -1 
+    // y de esta forma sabemos que aun no ha comenzado
+    if (!turno.ultimoNumero) {
+        turno.ultimoNumero = turno.numeroInicio - 1;
+    }
+
+    /*
+        // if (req.body.letraFin) {
+        //     turno.letraFin = req.body.letraFin.toLowerCase();
+        // }
+
+        // validaciones
+        // const validar = this.validar(turno);
+        // if (!validar.valid) {
+        //     return res.status(500).send({ status: 500, message: validar.message, type: 'internal' });
+        // }
+
+        // filtramos las letras que vamos  utilizar
+        // if (letraInicio && letraFin) {
+        //     letras = LETRAS.filter((letra) => {
+        //         return (letra.charCodeAt(0) <= letraFin.charCodeAt(0)) ? letra : null;
+        //     });
+
+        //     if (letras.length) {
+        //         turno.ultimoNumeroFin = (turno.numeroFin - turno.numeroInicio) * letras.length;
+        //     }
+        // } else {
+        //     if (turno.numeroInicio == 0) {
+        //         turno.ultimoNumeroFin = turno.numeroFin + 1;
+        //     } else {
+        //         turno.ultimoNumeroFin = (turno.numeroFin - turno.numeroInicio);
+        //     }
+        // }
+    */
+    // COMIENZO DEL CALLBACK HELL :D :D :D
+    let conditions = {
+        //...(req.params.id) && { _id: { $ne: new ObjectID(req.params.id) } },
+        ...(data.id) && { _id: { $ne: new ObjectID(data.id) } },
+        tipo: turno.tipo,
+        estado: 'activo',
+        letraInicio: turno.letraInicio,
+        //{$and: [{numeroInicio: {$lte: 1}, numeroInicio: {$lte: 4}}, {numeroFin: {$lte: 1}, numeroFin: {$gte: 4} }]} // working on robomongo
+        $and: [
+            //
+            {
+                $or: [{
+                    numeroInicio: { $lte: turno.numeroFin },
+                }]
+            }, // OK!
+
+            {
+                $or: [{
+                    numeroFin: { $gte: turno.numeroInicio }
+                },]
+            },
+            {
+                $or: [{
+                    numeroInicio: { $lte: turno.numeroInicio },
+                },
+                {
+                    numeroInicio: { $lte: turno.numeroFin }
+                },
+                {
+                    numeroFin: { $gte: turno.numeroInicio },
+                },
+                {
+                    numeroFin: { $gte: turno.numeroFin }
+                }
+                ]
+            }
+        ]
+    };
+
+
+    let existeTurno = await Turno.find(conditions);
+
+    return new Promise( (resolve, reject) => {
+      
+        if (existeTurno.length) {
+            //return next(new Error('Ya existe el turno de este tipo y con esa letra y numeración'));
+            return reject(new Error('Ya existe el turno del tipo <b>' + turno.tipo + '</b>, para la letra <b>' + turno.letraInicio.toUpperCase() + '</b> y numeración <b>' + turno.numeroInicio + '/' + turno.numeroFin + '</b>'));
+        }
+
+        turno.save((err, data) => {
+            if (err) {
+                //return next(err);
+                return reject (new Error(err));
+            }
+
+            return resolve(data);
+            //res.json(data);
+        });
+    });
+}
+
+export = router;

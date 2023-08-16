@@ -6,50 +6,46 @@ import { TurnosService } from './../../services/turnos.service';
 import { IVentanillas } from './../../interfaces/IVentanillas';
 declare var EventSource: any;
 @Component({
-    selector: 'hpn-ventanilla',
+    selector: 'app-ventanilla',
     templateUrl: './ventanilla.component.html'
 })
 export class VentanillaComponent implements OnInit {
     sinVentanillas: boolean;
 
-    public numero;
-    public ventanilla: any;
-    public prioritario: any;
-    public noPrioritario: any;
-    public turnoActualPrioritario: any;
-    public turnoActualNoPrioritario: any;
+    private numero;
+    private ventanilla: any;
+    private prioritario: any;
+    private noPrioritario: any;
+    private turnoActualPrioritario: any;
+    private turnoActualNoPrioritario: any;
 
-    constructor(
-        private ventanillasService: VentanillasService,
-        private turnosService: TurnosService,
-        private route: ActivatedRoute
-    ) {
-
+    constructor(private VentanillasService: VentanillasService, private TurnosService: TurnosService,
+        private router: Router, private route: ActivatedRoute) {
+        // , private changeDetector: ChangeDetectorRef
     }
 
     ngOnInit() {
 
         this.route.params.subscribe(params => {
             // obtenemos el parametro del nombre de la ventanilla enviado
-            this.numero = params.numero;
+            this.numero = (params['numero']) ? params['numero'] : localStorage.getItem('ventanillaActual');
 
-            // TODO: si no tenemos numero redireccionamos a la seleccion de ventanilla
+            if (!this.numero) {
+                this.router.navigate(['ventanilla']);
+            }
+
             this.inicializarVentanilla();
         });
-
-        // TODO: si no se paso el id nombre de la ventanilla, entonces lo
-        // levantamos de la session e inicializamos la ventanilla
-        // var ventanillaActual = JSON.parse(localStorage.getItem('ventanillaActual'));
-        // console.log(ventanillaActual);
     }
 
     inicializarVentanilla() {
-        this.ventanillasService.get({ numero: this.numero }).subscribe(ventanilla => {
+        this.VentanillasService.get({ numeroVentanilla: this.numero }).subscribe(ventanilla => {
 
             if (ventanilla[0]) {
                 this.ventanilla = ventanilla[0];
 
-                localStorage.setItem('ventanillaActual', this.ventanilla.numero);
+
+                localStorage.setItem('ventanillaActual', this.ventanilla.numeroVentanilla);
 
                 this.sinVentanillas = false;
 
@@ -66,31 +62,15 @@ export class VentanillaComponent implements OnInit {
     inicializarTurneros() {
 
         // obtenemos prioritario
-        this.turnosService.get({ tipo: 'prioritario', ultimoEstado: 'uso' }).subscribe(turnos => {
-
-            // TODO: Revisar de enviar limit : 1
-            if (turnos[turnos.length - 1]) {
-                this.prioritario = turnos[turnos.length - 1];
-
-                this.turnosService.getActual(this.prioritario._id, this.ventanilla._id).subscribe(actual => {
-                    this.turnoActualPrioritario = actual[0];
-                });
-
-            } else {
-
-            }
+        this.TurnosService.get({ tipo: 'prioritario', estado: 'activo' }).subscribe(turnero => {
+            this.turnoActualPrioritario = turnero[0];
+            console.log(this.turnoActualPrioritario);
         });
 
         // obtenemos no prioritario
-        this.turnosService.get({ tipo: 'no-prioritario', ultimoEstado: 'uso' }).subscribe(turnos => {
-            if (turnos[turnos.length - 1]) {
-                this.noPrioritario = turnos[turnos.length - 1];
-
-                this.turnosService.getActual(this.noPrioritario._id, this.ventanilla._id).subscribe(actual => {
-                    this.turnoActualNoPrioritario = actual[0];
-                });
-
-            }
+        this.TurnosService.get({ tipo: 'noPrioritario', estado: 'activo' }).subscribe(turnero => {
+            this.turnoActualNoPrioritario = turnero[0];
+            console.log(this.turnoActualNoPrioritario);
         });
     }
 
@@ -109,10 +89,12 @@ export class VentanillaComponent implements OnInit {
     /* Actualizar estados de la ventanilla */
     actualizarVentanilla(key, value) {
         const patch = {
-            key,
-            value
+            key: key,
+            value: value
         };
-        this.ventanillasService.patch(this.ventanilla._id, patch).subscribe(v => {
+
+        this.VentanillasService.patch(this.ventanilla._id, patch).subscribe(v => {
+            this.ventanilla = v;
             this.inicializarVentanilla();
         });
     }

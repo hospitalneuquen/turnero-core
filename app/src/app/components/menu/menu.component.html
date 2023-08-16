@@ -26,28 +26,18 @@
     -->
 
         <div id="menu">
-            <a class="btn btn-primary" href="javascript:void(0);" (click)="menu('/ventanilla')">
-                Ir a mi ventanilla
-            </a>
+            <a class="btn btn-primary" href="javascript:void(0);" (click)="menu('/ventanilla')">Ir a mi ventanilla</a>
             <hr>
             <ul class="list-group">
                 <i class="list-group-item list-group-item-info">Configuraciones</i>
-                <a class="list-group-item" href="javascript:void(0);" (click)="menu('/config/ventanillas')">
-                    Administrar
-                    Ventanillas
-                </a>
-                <a class="list-group-item" href="javascript:void(0);" (click)="menu('/config/turnos')">
-                    Cargar Turnos
-                </a>
+                <!-- <a class="list-group-item" href="javascript:void(0);" (click)="menu('/config/ventanillas')">Administrar Ventanillas</a> -->
+                <a class="list-group-item" href="javascript:void(0);" (click)="menu('/config/turnos')">Cargar Turnos</a>
             </ul>
         </div>
     </div>
-    <div class="row">
-        <div class="col titulo-ventanilla" *ngIf="miVentanilla">
-            Mi ventanilla
-        </div>
-        <div class="col">
-            <hpn-reloj></hpn-reloj>
+    <div *ngIf="miVentanilla" class="row">
+        <div class="col titulo-ventanilla">
+            Mi ventanilla {{this.ventanillaActual}}
         </div>
     </div>
 </nav>

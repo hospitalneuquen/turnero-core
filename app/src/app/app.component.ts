@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { environment } from './../environments/environment';
+import { Component, OnInit, ModuleWithProviders } from '@angular/core';
 
 @Component({
-    selector: 'hpn-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss']
+  selector: 'app',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
+
 export class AppComponent {
-    title = 'turnero-app';
 }

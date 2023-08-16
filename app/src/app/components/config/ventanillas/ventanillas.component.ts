@@ -1,37 +1,36 @@
+import { Observable, Subject } from 'rxjs/Rx';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
-import { VentanillasService } from './../../services/ventanillas.service';
-import { TurnosService } from './../../services/turnos.service';
-import { IVentanillas } from './../../interfaces/IVentanillas';
+import { VentanillasService } from './../../../services/ventanillas.service';
+import { TurnosService } from './../../../services/turnos.service';
+import { IVentanillas } from './../../../interfaces/IVentanillas';
+import { IAlert } from './../../../interfaces/IAlert';
 declare var EventSource: any;
 @Component({
-    selector: 'hpn-ventanillas',
+    selector: 'app-ventanillas',
     templateUrl: 'ventanillas.html'
 })
 export class ListaVentanillasComponent implements OnInit {
 
     private ventanillasSeleccionadas: any = [];
-    public ventanillaSeleccionada: any = [];
-    public ventanillas: any;
-    public showEditarVentanillaPanel = false;
+    private ventanillaSeleccionada: any = [];
+    private ventanillas: any;
+    private showEditarVentanillaPanel = false;
 
-    public servidorCaido = false;
+    public alert: IAlert;
 
-    constructor(
-        private ventanillasService: VentanillasService,
-        private turnosService: TurnosService,
-        private router: Router,
-        private route: ActivatedRoute
-    ) { }
+    private servidorCaido = false;
+
+    constructor(private VentanillasService: VentanillasService, private TurnosService: TurnosService,
+        private router: Router, private route: ActivatedRoute) { }
 
     ngOnInit() {
-
         this.inicializarVentanillas();
     }
 
     inicializarVentanillas() {
-        this.ventanillasService.get({}).subscribe(ventanillas => {
+        this.VentanillasService.get({}).subscribe(ventanillas => {
 
             if (ventanillas.length) {
                 this.ventanillas = ventanillas;
@@ -84,17 +83,36 @@ export class ListaVentanillasComponent implements OnInit {
     /* Actualizar estados de la ventanilla */
     actualizarVentanilla(ventanilla, key, value) {
         const patch = {
-            key,
-            value
+            key: key,
+            value: value
         };
-        this.ventanillasService.patch(ventanilla._id, patch).subscribe(v => {
+
+        this.VentanillasService.patch(ventanilla._id, patch).subscribe(v => {
+            this.alert = {
+                message: '<strong>Ventanilla guardada</strong>',
+                class: 'success'
+            };
+
+            setTimeout(() => {
+                this.alert = null;
+            }, 5000);
+
             this.inicializarVentanillas();
         });
     }
 
     eliminarVentanilla(ventanilla: any) {
         if (confirm('¿Eliminar Ventanilla?')) {
-            this.ventanillasService.delete(ventanilla._id).subscribe(v => {
+            this.VentanillasService.delete(ventanilla._id).subscribe(v => {
+                this.alert = {
+                    message: '<strong>Ventanilla elimianda</strong>',
+                    class: 'success'
+                };
+
+                setTimeout(() => {
+                    this.alert = null;
+                }, 5000);
+
                 this.inicializarVentanillas();
             });
         }

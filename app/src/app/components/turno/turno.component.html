@@ -1,57 +1,75 @@
-<ng-container *ngIf="turnero">
-    <div [ngClass]="turnero.color">
+<ng-container *ngIf="turno  && ventanilla">
+
+
+    <div [ngClass]="turno.color">
 
         <div class="box-turno borde inactivo">
 
             <div class="cabezal fondo text-center">
-                <h4>Ventanilla {{ventanilla.numero}}</h4>
+                <h4 class="upper" *ngIf="turno.tipo === 'prioritario'">prioritario</h4>
+                <h4 class="upper" *ngIf="turno.tipo === 'noPrioritario'">no prioritario</h4>
+            </div>
 
-                <h3 *ngIf="disponibles <= 10">Atención:</h3>
-                <span *ngIf="disponibles > 1 && disponibles <= 10">últimos {{disponibles}} turnos disponibles</span>
-                <span *ngIf="disponibles === 1">ÚLTIMO turno disponible</span>
-                <div *ngIf="disponibles === 0">
-                    <h4 class="tipo-turno">No quedan turnos disponibles, por favor cargue un nuevo turnero
-                        <b *ngIf="turnero.tipo === 'prioritario'">prioritario</b>
-                        <b *ngIf="turnero.tipo === 'no-prioritario'">no prioritario</b>
+            <div class="cuerpo container-fluid">
+                <div class="d-inline numero" *ngIf="turno?.tipo && ventanilla?.ultimo[turno.tipo]">
+                    <!-- *ngIf="ventanilla?.ultimo[turno.tipo].numero >= 0" -->
+                    {{ventanilla.ultimo[turno.tipo].letra ? ventanilla.ultimo[turno.tipo].letra : ''}} {{ventanilla.ultimo[turno.tipo].numero}}
+                </div>
+
+                <br />
+
+                <!-- 
+                <h3 *ngIf="turno.ultimoNumero === (turno.numeroFin - 10)">Atención:</h3>
+                <span *ngIf="turno.ultimoNumero > 1 && turno.ultimoNumero === (turno.numeroFin - 10)">últimos {{turno.ultimoNumero - 10}} turnos disponibles</span>
+                -->
+
+
+                <!-- <span *ngIf="turno.ultimoNumero === (turno.numeroFin)">ÚLTIMO turno disponible</span> -->
+
+                <!-- <div *ngIf="turno.ultimoNumero === turno.numeroFin">
+                    <h4 class="tipo-turno">No quedan turnos disponibles, por favor cargue un nuevo turno
+                        <b *ngIf="turno.tipo === 'prioritario'">prioritario</b>
+                        <b *ngIf="turno.tipo === 'noPrioritario'">no prioritario</b>
                     </h4>
 
                     <div class="text-center">
                         <a [routerLink]="['/config/turnos']" class="btn btn-primary">Cargar turnos</a>
                     </div>
-                </div>
+                </div> -->
             </div>
 
-            <div class="cuerpo container-fluid">
-                <div class="tipo-turno">
-                    <span *ngIf="turnero.tipo === 'prioritario'">prioritario</span>
-                    <span *ngIf="turnero.tipo === 'no-prioritario'">no prioritario</span>
-                </div>
-
-                <div class="d-inline numero" *ngIf="turno?.numeros">
-                    {{turno.numeros.letra}} {{turno.numeros.numero}}
-                </div>
-
-            </div>
             <div class="container-fluid">
                 <div class="row">
-                    <div *ngIf="turno?.numeros" class="col-4 text-center">
-                        <i class="mdi mdi-arrow-left-bold-box-outline mdi-48px align-middle"></i>
-                        <button class="btn btn-primary" (click)="rellamar(turno, 'anterior')">
-                            <span class="align-middle">Rellamar anterior ({{turno.numeros.llamado}})</span>
-                        </button>aa
+
+                    <!-- Rellamar turnos -->
+                    <div class="col text-center">
+
+                        <ng-container>
+                            <!-- && turno?.ultimoNumero >= 0 -->
+                            <button class="btn btn-primary" (click)="puedReLlamar() && reLlamar(turno, 'actual')" [disabled]="!rellamar || !llamar">
+                                <i class="mdi mdi-bell-ring mdi-48px align-middle badge-numero-llamado">
+                                    <span class="numero-llamado"  *ngIf="turno?.tipo && ventanilla?.ultimo[turno.tipo]?.llamado">{{ventanilla.ultimo[turno.tipo].llamado}}</span>
+                                </i>
+                                <br />
+                                <span class="align-middle">Rellamar actual</span>
+                            </button>
+                        </ng-container>
                     </div>
-                    <div *ngIf="turno?.numeros" class="col-4 text-center">
-                        <i class="mdi mdi-bell-ring mdi-48px align-middle"></i>
-                        <button class="btn btn-primary" (click)="rellamar(turno, 'actual')">
-                            <span class="align-middle">Rellamar actual ({{turno.numeros.llamado}})</span>
-                        </button>
-                    </div>
-                    <div *ngIf="disponibles" class="col-4 text-center">
-                        <i class="mdi mdi-arrow-right-bold-box-outline mdi-48px align-middle"></i>
-                        <button class="btn btn-primary" (click)="siguiente()">
-                            <span *ngIf="turno?.numeros" class="align-middle">Llamar siguiente</span>
-                            <span *ngIf="!turno?.numeros">Llamar primer turno</span>
-                        </button>
+                    <!-- // FIN Rellamar turnos -->
+
+                    <div class="col text-center">
+                        <!-- <ng-container *ngIf="(turno?.numeroFin > turno?.ultimoNumero)"> -->
+                        <ng-container>
+                            <button class="btn btn-primary" (click)="puedeLlamar() && siguiente(turno)" [disabled]="!llamar || !rellamar">
+                                <i class="mdi mdi-arrow-right-bold-box-outline mdi-48px align-middle"></i>
+                                <br />
+                                <span class="align-middle">Llamar siguiente</span>
+                            </button>
+                        </ng-container>
+
+                        <!-- // FIN iniciar turnos o llamar al siguiente -->
+
+                        <!-- // FIN Turno finalizado, marcar como finalizado y traer el proximo -->
                     </div>
                 </div>
             </div>

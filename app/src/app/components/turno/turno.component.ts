@@ -1,127 +1,102 @@
+import { VentanillasService } from './../../services/ventanillas.service';
 import { Component, Output, Input, EventEmitter, OnInit } from '@angular/core';
 
 import { TurnosService } from './../../services/turnos.service';
 import { ITurnos } from './../../interfaces/ITurnos';
 
 @Component({
-    selector: 'hpn-turno',
+    selector: 'app-turno',
     templateUrl: './turno.component.html',
     styleUrls: ['./turno.component.css']
 })
 export class TurnoComponent implements OnInit {
 
-    @Input() turnero: any;
     @Input() turno: any; // turno actual
     @Input() ventanilla: any;
 
-    disponibles: number;
-    existeSiguiente = true;
+    disponibles: Number;
+    existeSiguiente: Boolean = true;
+    ultimoTurnoLlamado: any;
 
-    constructor(private turnosService: TurnosService) { }
+    llamar = true;
+    rellamar = true;
+
+    constructor(private TurnosService: TurnosService, private VentanillasService: VentanillasService) { }
 
     ngOnInit() {
-        this.count();
     }
 
-    count() {
-        this.turnosService.getCount(this.turnero._id).subscribe(turnos => {
-            this.disponibles = turnos.count;
-        });
-    }
+    // count() {
+    //     this.TurnosService.getCount(this.turno._id).subscribe(turnos => {
+    //         this.disponibles = turnos.count || 0;
+    //     });
+    // }
 
-    rellamar(turno, tipo) {
+    reLlamar(turno, tipo) {
         let dto = {};
+
         if (tipo === 'actual') {
             dto = {
                 accion: 'rellamar',
-                idNumero: turno.numeros._id,
-                valores: {
-                    ventanilla: this.ventanilla._id,
-                    inc: 1
-                }
+                tipo: turno.tipo,
+                idTurno: turno._id
             };
-            this.turnosService.patch(this.turnero._id, dto).subscribe(turnoPatch => {
-                this.turnosService.getActual(this.turnero._id, this.ventanilla._id).subscribe(actual => {
-                    this.turno = actual[0];
+
+            this.VentanillasService.patch(this.ventanilla._id, dto).subscribe((ventanillaPatch: any) => {
+                this.ventanilla = ventanillaPatch;
+
+                this.rellamar = false;
+                this.TurnosService.getActual(turno._id).subscribe(actual => {
+                    this.turno = actual;
+                    // this.turno = actual[0];
+
+                    setTimeout(() => {
+                        this.rellamar = true;
+                    }, 2200);
                 });
-                this.turno = turnoPatch;
-            });
-        } else if (tipo === 'anterior') {
-            this.turnosService.getPrev(this.turnero._id, this.ventanilla._id).subscribe(anterior => {
-                console.log(anterior);
             });
 
+        // } else if (tipo === 'anterior') {
+        //     this.TurnosService.getPrev(this.turno._id, this.ventanilla._id).subscribe(anterior => {
+
+        //     });
         }
-
-
     }
 
-    siguiente() {
-        this.turnosService.getNext(this.turnero._id).subscribe(turno => {
+    siguiente(turno) {
+        const dto = {
+            accion: 'siguiente',
+            tipo: turno.tipo,
+            idTurno: turno._id
+        };
 
-            if (turno[0]) {
+        this.llamar = false;
+        this.VentanillasService.patch(this.ventanilla._id, dto).subscribe( (ventanillaPatch: any) => {
+            this.ventanilla = ventanillaPatch.ventanilla;
 
-                // asignamos el proximo turno como turno actual
-                this.turno = turno[0] ? turno[0] : {};
+            setTimeout(() => {
+                this.llamar = true;
+            }, 2200);
 
-                // creamos el nuevo estado
-                const dto = {
-                    accion: 'cambio_estado_numero',
-                    idNumero: this.turno.numeros._id,
-                    valores: {
-                        estado: {
-                            valor: 'llamado',
-                            fecha: new Date()
-                        }
-                    }
-                };
+            // this.turno = ventanillaPatch.turno;
 
-                // la ventanilla se apropia del turno
-                this.turnosService.patch(this.turnero._id, dto).subscribe(turno => {
-
-                    const dto = {
-                        accion: 'cambio_ultimo_estado',
-                        idNumero: this.turno.numeros._id,
-                        valores: {
-                            ventanilla: this.ventanilla._id,
-                            llamado: 1,
-                            ultimoEstado: 'llamado'
-                        }
-                    };
-
-                    this.turnosService.patch(this.turnero._id, dto).subscribe(turno => {
-                        // actualizamos la cantidad disponibles
-                        // this.count();
-                        this.turnosService.getCount(this.turnero._id).subscribe(turnos => {
-                            this.disponibles = turnos.count;
-                            // return this.disponibles;
-
-                            if (!this.disponibles) {
-                                const dto = {
-                                    accion: 'turnero_finalizado',
-                                    valores: {
-                                        estado: {
-                                            fecha: new Date(),
-                                            valor: 'finalizado'
-                                        },
-                                        ultimoEstado: 'finalizado'
-                                    }
-                                };
-
-                                this.turnosService.patch(this.turnero._id, dto).subscribe(turno => {
-                                });
-
-                            }
-                        });
-                    });
-                });
-
-                // });
-            } else {
-                // no hay turno disponible
-            }
+            // this.TurnosService.getActual(this.turno._id).subscribe(turno => {
+            //     this.turno = turno[0];
+            // });
+        }, (err) => {
+            setTimeout(() => {
+                this.llamar = true;
+            }, 2200);
         });
 
         // this.evtOutput.emit(this.turno);
+    }
+
+    puedeLlamar() {
+        return this.llamar;
+    }
+
+    puedReLlamar() {
+        return this.rellamar;
     }
 }
